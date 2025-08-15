@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>25 minutes Approach Student Data Management</title>
+    <!-- Tailwind CSS CDN for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN for charting functionality -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .container {
+            max-width: 1280px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .card {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .button-primary {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            transition-property: background-color, color;
+            transition-duration: 200ms;
+        }
+        .button-active {
+            background-color: #4f46e5;
+            color: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .button-inactive {
+            background-color: #d1d5db;
+            color: #1f2937;
+        }
+        .button-inactive:hover {
+            background-color: #9ca3af;
+        }
+        .student-list-item {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: background-color 150ms;
+        }
+        .student-list-item:hover {
+            background-color: #e0e7ff;
+        }
+        .student-list-item.selected {
+            background-color: #c7d2fe;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 p-4 text-gray-800">
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="flex items-center justify-center min-h-screen">
+        <div class="text-xl font-semibold text-gray-700">Loading...</div>
+    </div>
+
+    <!-- Main Application Container -->
+    <div id="app" class="container py-8 hidden">
+        <h1 class="text-4xl font-bold text-center mb-10 text-gray-700">25 minutes Approach Student Data Management</h1>
+
+        <!-- Navigation Buttons -->
+        <div class="flex justify-center mb-10 space-x-4">
+            <button data-page="form" class="button-primary button-active">Data Entry Form</button>
+            <button data-page="table" class="button-primary button-inactive">View Encoded Data</button>
+            <button data-page="tracker" class="button-primary button-inactive">Improvement Tracker</button>
+        </div>
+
+        <!-- Content Area -->
+        <div id="content-area">
+
+            <!-- Data Entry Form Page -->
+            <div id="form-page" class="card">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-600">Add New Student</h2>
+                <form id="student-form" class="grid md:grid-cols-3 gap-6">
+                    <!-- Form fields will be dynamically populated -->
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
+                        <input type="text" name="lastName" id="lastName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
+                        <input type="text" name="firstName" id="firstName" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="middleInitial" class="block text-sm font-medium text-gray-700">Middle Initial</label>
+                        <input type="text" name="middleInitial" id="middleInitial" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="section" class="block text-sm font-medium text-gray-700">Section</label>
+                        <select name="section" id="section" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="gender" class="block text-sm font-medium text-gray-700">Gender</label>
+                        <select name="gender" id="gender" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="teacher" class="block text-sm font-medium text-gray-700">Teacher</label>
+                        <select name="teacher" id="teacher" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="quarter" class="block text-sm font-medium text-gray-700">Quarter</label>
+                        <select name="quarter" id="quarter" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="englishLevel" class="block text-sm font-medium text-gray-700">English Literacy Level</label>
+                        <select name="englishLevel" id="englishLevel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="filipinoLevel" class="block text-sm font-medium text-gray-700">Filipino Literacy Level</label>
+                        <select name="filipinoLevel" id="filipinoLevel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 md:col-span-1">
+                        <label for="numeracyLevel" class="block text-sm font-medium text-gray-700">Numeracy Level</label>
+                        <select name="numeracyLevel" id="numeracyLevel" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div class="col-span-3 flex justify-start items-center space-x-4 mt-4">
+                        <button type="submit" id="save-button" class="inline-flex items-center px-4 py-2 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                            Save Record
+                        </button>
+                        <button type="button" id="cancel-button" class="hidden inline-flex items-center px-4 py-2 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200">
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- View Encoded Data Table Page -->
+            <div id="table-page" class="card hidden">
+                <h2 class="text-2xl font-semibold text-gray-600 mb-4 md:mb-0">Student Records</h2>
+                <div class="mt-4 mb-8 p-4 bg-gray-50 rounded-xl shadow-inner grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Male Students</p>
+                        <p id="male-count" class="text-3xl font-bold text-indigo-600">0</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Female Students</p>
+                        <p id="female-count" class="text-3xl font-bold text-pink-500">0</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-medium text-gray-600">Total Students</p>
+                        <p id="total-count" class="text-3xl font-bold text-gray-800">0</p>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="mb-6 flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                    <div class="flex-1">
+                        <label for="table-filter-name" class="sr-only">Filter by Name</label>
+                        <input type="text" id="table-filter-name" placeholder="Filter by Student Name..." class="block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                    </div>
+                    <div class="flex-1">
+                        <label for="table-filter-section" class="sr-only">Filter by Section</label>
+                        <select id="table-filter-section" class="block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                    </div>
+                    <div id="quarter-filter-buttons" class="flex flex-wrap space-x-2 justify-center md:justify-start"></div>
+                </div>
+
+                <!-- Student Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Section</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Gender</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quarter</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">English Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Filipino Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Numeracy Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="student-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Table rows will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Improvement Tracker Page -->
+            <div id="tracker-page" class="card hidden">
+                <h2 class="text-2xl font-semibold text-gray-600 mb-6">Student Improvement Tracker</h2>
+                <div class="flex flex-col space-y-6">
+                    <div class="w-full pb-4 border-b border-gray-200">
+                        <h3 class="text-xl font-medium mb-3 text-gray-700">Select a Student</h3>
+                        <div class="mb-4 space-y-2">
+                            <input type="text" id="tracker-filter-name" placeholder="Filter by Student Name..." class="block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            <select id="tracker-filter-section" class="block w-full rounded-md border-gray-300 shadow-sm p-2 focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"></select>
+                        </div>
+                        <div id="tracker-list-container">
+                            <!-- Student list will be populated here -->
+                        </div>
+                    </div>
+
+                    <div class="w-full bg-gray-50 p-6 rounded-2xl shadow-inner">
+                        <div id="chart-container" class="hidden">
+                            <h3 id="chart-title" class="text-2xl font-bold mb-4 text-gray-700"></h3>
+                            <div class="mb-4 flex flex-wrap gap-4" id="chart-legend-buttons">
+                                <button class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-blue-500 text-white" onclick="toggleSubjectVisibility('english')">English</button>
+                                <button class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-green-500 text-white" onclick="toggleSubjectVisibility('filipino')">Filipino</button>
+                                <button class="px-4 py-2 rounded-lg font-medium transition-colors duration-200 bg-red-500 text-white" onclick="toggleSubjectVisibility('numeracy')">Numeracy</button>
+                            </div>
+                            <div style="height: 400px; width: 100%;">
+                                <canvas id="progress-chart"></canvas>
+                            </div>
+                        </div>
+                        <div id="chart-placeholder" class="flex items-center justify-center h-full">
+                            <p class="text-xl text-gray-500 italic">Please select a student to view their progress.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="mt-8 p-4 bg-gray-200 rounded-xl text-center">
+            <p class="text-sm text-gray-600">User ID: <span id="user-id" class="font-mono"></span></p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, addDoc, updateDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // --- Data definitions ---
+        const englishLiteracyLevels = [{ level: "Syllable", color: "#3b82f6" }, { level: "Word", color: "#10b981" }, { level: "Phrase", color: "#f59e0b" }, { level: "Sentence", color: "#fb923c" }, { level: "Paragraph", color: "#ef4444" }];
+        const filipinoLiteracyLevels = [{ level: "Pantig", color: "#3b82f6" }, { level: "Salita", color: "#10b981" }, { level: "Parirala", color: "#f59e0b" }, { level: "Pangungusap", color: "#fb923c" }, { level: "Talata", color: "#ef4444" }];
+        const numeracyLevels = [{ level: "Non-Numerate", color: "#3b82f6" }, { level: "Beginner", color: "#fb923c" }, { level: "Developing", color: "#10b981" }, { level: "Proficient", color: "#ef4444" }];
+        const quarters = ["Q1", "Q2", "Q3", "Q4"];
+        const sections = ["Rizal", "Bonifacio", "Mabini", "Jacinto", "Aguinaldo", "Luna", "Del Pilar"];
+        const genderOptions = ["Male", "Female"];
+        const teachers = ["Cathering Cardona", "Elisa Bassig", "Jayson Bugarin", "Ma. Lowel Padillo", "Florence Bernal", "Mona Fe Barrozo"];
+
+        // --- Global State ---
+        const state = {
+            db: null,
+            auth: null,
+            userId: '',
+            appId: '',
+            isAuthReady: false,
+            currentPage: 'form',
+            students: [],
+            uniqueStudents: [],
+            formData: {},
+            isEditing: false,
+            editingId: null,
+            currentQuarter: 'All',
+            filterName: '',
+            filterSection: 'All',
+            trackerFilterName: '',
+            trackerFilterSection: 'All',
+            selectedStudent: null,
+            selectedStudentRecords: [],
+            visibleSubjects: { english: true, filipino: true, numeracy: true }
+        };
+
+        let myChart = null; // Chart.js instance
+
+        // --- Helper Functions ---
+        const getEnglishColor = (level) => englishLiteracyLevels.find(item => item.level === level)?.color || "gray";
+        const getEnglishLevelIndex = (level) => englishLiteracyLevels.findIndex(item => item.level === level);
+        const getFilipinoColor = (level) => filipinoLiteracyLevels.find(item => item.level === level)?.color || "gray";
+        const getFilipinoLevelIndex = (level) => filipinoLiteracyLevels.findIndex(item => item.level === level);
+        const getNumeracyColor = (level) => numeracyLevels.find(item => item.level === level)?.color || "gray";
+        const getNumeracyLevelIndex = (level) => numeracyLevels.findIndex(item => item.level === level);
+
+        const resetForm = () => {
+            state.formData = {
+                firstName: '', lastName: '', middleInitial: '', section: '', gender: '', teacher: '',
+                quarter: 'Q1', englishLevel: 'Syllable', filipinoLevel: 'Pantig', numeracyLevel: 'Non-Numerate',
+            };
+            state.isEditing = false;
+            state.editingId = null;
+            renderForm();
+        };
+
+        const renderPage = () => {
+            document.querySelectorAll('#content-area > div').forEach(div => div.classList.add('hidden'));
+            document.getElementById(`${state.currentPage}-page`).classList.remove('hidden');
+
+            document.querySelectorAll('.button-primary').forEach(btn => {
+                btn.classList.remove('button-active');
+                btn.classList.add('button-inactive');
+                if (btn.dataset.page === state.currentPage) {
+                    btn.classList.add('button-active');
+                    btn.classList.remove('button-inactive');
+                }
+            });
+
+            if (state.currentPage === 'form') renderForm();
+            if (state.currentPage === 'table') renderTable();
+            if (state.currentPage === 'tracker') renderTracker();
+        };
+
+        // --- Render Functions for Each Page ---
+
+        const renderForm = () => {
+            const formTitle = document.querySelector('#form-page h2');
+            formTitle.textContent = state.isEditing ? "Edit Student Record" : "Add New Student";
+            
+            const form = document.getElementById('student-form');
+            form.querySelector('#lastName').value = state.formData.lastName || '';
+            form.querySelector('#firstName').value = state.formData.firstName || '';
+            form.querySelector('#middleInitial').value = state.formData.middleInitial || '';
+            form.querySelector('#save-button').textContent = state.isEditing ? 'Update Record' : 'Save Record';
+            
+            const cancelButton = document.getElementById('cancel-button');
+            if (state.isEditing) cancelButton.classList.remove('hidden');
+            else cancelButton.classList.add('hidden');
+
+            // Populate select dropdowns
+            const populateSelect = (id, options, selectedValue) => {
+                const select = document.getElementById(id);
+                select.innerHTML = options.map(opt => `<option value="${opt}" ${selectedValue === opt ? 'selected' : ''}>${opt}</option>`).join('');
+            };
+            populateSelect('section', sections, state.formData.section);
+            populateSelect('gender', genderOptions, state.formData.gender);
+            populateSelect('teacher', teachers, state.formData.teacher);
+            populateSelect('quarter', quarters, state.formData.quarter);
+            populateSelect('englishLevel', englishLiteracyLevels.map(l => l.level), state.formData.englishLevel);
+            populateSelect('filipinoLevel', filipinoLiteracyLevels.map(l => l.level), state.formData.filipinoLevel);
+            populateSelect('numeracyLevel', numeracyLevels.map(l => l.level), state.formData.numeracyLevel);
+        };
+
+        const renderTable = () => {
+            const filteredStudents = state.students.filter(student =>
+                (state.currentQuarter === 'All' || student.quarter === state.currentQuarter) &&
+                (state.filterSection === 'All' || student.section === state.filterSection) &&
+                (state.filterName.toLowerCase() === '' ||
+                 student.firstName.toLowerCase().includes(state.filterName.toLowerCase()) ||
+                 student.lastName.toLowerCase().includes(state.filterName.toLowerCase()) ||
+                 (student.middleInitial && student.middleInitial.toLowerCase().includes(state.filterName.toLowerCase())))
+            );
+
+            // Update counts
+            let maleCount = 0;
+            let femaleCount = 0;
+            filteredStudents.forEach(s => s.gender === 'Male' ? maleCount++ : femaleCount++);
+            document.getElementById('male-count').textContent = maleCount;
+            document.getElementById('female-count').textContent = femaleCount;
+            document.getElementById('total-count').textContent = filteredStudents.length;
+
+            // Render filter controls
+            document.getElementById('table-filter-name').value = state.filterName;
+            const filterSectionSelect = document.getElementById('table-filter-section');
+            filterSectionSelect.innerHTML = `<option value="All">All Sections</option>` + sections.map(s => `<option value="${s}" ${state.filterSection === s ? 'selected' : ''}>${s}</option>`).join('');
+            const quarterFilterButtons = document.getElementById('quarter-filter-buttons');
+            quarterFilterButtons.innerHTML = `<button class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${state.currentQuarter === 'All' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}" data-quarter="All">All Quarters</button>` + quarters.map(q => `<button class="px-4 py-2 rounded-lg text-sm font-medium transition-colors duration-200 ${state.currentQuarter === q ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-800'}" data-quarter="${q}">${q}</button>`).join('');
+
+            // Render table body
+            const tableBody = document.getElementById('student-table-body');
+            if (filteredStudents.length === 0) {
+                tableBody.innerHTML = `<tr><td colspan="9" class="px-6 py-4 text-center text-sm text-gray-500">No student records found.</td></tr>`;
+                return;
+            }
+            tableBody.innerHTML = filteredStudents.map(student => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${student.firstName} ${student.middleInitial ? student.middleInitial + '.' : ''} ${student.lastName}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.section}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.gender}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.teacher}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${student.quarter}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${getEnglishColor(student.englishLevel)}"></span>
+                            <span>${student.englishLevel}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${getFilipinoColor(student.filipinoLevel)}"></span>
+                            <span>${student.filipinoLevel}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div class="flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${getNumeracyColor(student.numeracyLevel)}"></span>
+                            <span>${student.numeracyLevel}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                        <button class="text-blue-600 hover:text-blue-900 update-btn" data-id="${student.id}">Update</button>
+                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${student.id}">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        const renderTracker = () => {
+            const filteredUniqueStudents = state.uniqueStudents.filter(student =>
+                (state.trackerFilterSection === 'All' || student.section === state.trackerFilterSection) &&
+                (state.trackerFilterName.toLowerCase() === '' ||
+                 student.firstName.toLowerCase().includes(state.trackerFilterName.toLowerCase()) ||
+                 student.lastName.toLowerCase().includes(state.trackerFilterName.toLowerCase()) ||
+                 (student.middleInitial && student.middleInitial.toLowerCase().includes(state.trackerFilterName.toLowerCase())))
+            );
+
+            // Clear selected student if they are filtered out
+            if (state.selectedStudent && !filteredUniqueStudents.find(s => s.firstName === state.selectedStudent.firstName && s.lastName === state.selectedStudent.lastName)) {
+                state.selectedStudent = null;
+                document.getElementById('chart-container').classList.add('hidden');
+                document.getElementById('chart-placeholder').classList.remove('hidden');
+            }
+
+            const trackerFilterNameInput = document.getElementById('tracker-filter-name');
+            trackerFilterNameInput.value = state.trackerFilterName;
+            const trackerFilterSectionSelect = document.getElementById('tracker-filter-section');
+            trackerFilterSectionSelect.innerHTML = `<option value="All">All Sections</option>` + sections.map(s => `<option value="${s}" ${state.trackerFilterSection === s ? 'selected' : ''}>${s}</option>`).join('');
+
+            const listContainer = document.getElementById('tracker-list-container');
+            if (state.trackerFilterName.length === 0) {
+                listContainer.innerHTML = `<div class="p-4 text-center text-gray-500 italic">Start typing a student's name to filter the list.</div>`;
+            } else {
+                const studentListHtml = filteredUniqueStudents.length > 0
+                    ? `<ul class="divide-y divide-gray-200" id="filtered-students-list">${filteredUniqueStudents.map(student => `
+                          <li class="student-list-item ${state.selectedStudent?.firstName === student.firstName && state.selectedStudent?.lastName === student.lastName ? 'selected' : ''}" data-student-name="${student.firstName}-${student.lastName}">
+                              ${student.lastName}, ${student.firstName} ${student.middleInitial ? student.middleInitial + '.' : ''} (${student.section})
+                          </li>
+                      `).join('')}</ul>`
+                    : `<div class="p-2 text-center text-gray-500">No students match the filter.</div>`;
+                listContainer.innerHTML = `<div class="h-[120px] overflow-y-auto border rounded-xl shadow-inner bg-gray-50">${studentListHtml}</div>`;
+            }
+
+            if (state.selectedStudent) {
+                document.getElementById('chart-container').classList.remove('hidden');
+                document.getElementById('chart-placeholder').classList.add('hidden');
+                document.getElementById('chart-title').textContent = `Progress for ${state.selectedStudent.firstName} ${state.selectedStudent.lastName}`;
+                
+                state.selectedStudentRecords = state.students
+                    .filter(s => s.firstName === state.selectedStudent.firstName && s.lastName === state.selectedStudent.lastName)
+                    .sort((a, b) => a.quarter.localeCompare(b.quarter));
+                renderChart();
+            } else {
+                document.getElementById('chart-container').classList.add('hidden');
+                document.getElementById('chart-placeholder').classList.remove('hidden');
+            }
+        };
+
+        const renderChart = () => {
+            const ctx = document.getElementById('progress-chart');
+            if (myChart) myChart.destroy();
+
+            const chartData = quarters.map(q => {
+                const record = state.selectedStudentRecords.find(r => r.quarter === q);
+                return {
+                    quarter: q,
+                    englishLevel: record ? getEnglishLevelIndex(record.englishLevel) : undefined,
+                    filipinoLevel: record ? getFilipinoLevelIndex(record.filipinoLevel) : undefined,
+                    numeracyLevel: record ? getNumeracyLevelIndex(record.numeracyLevel) : undefined,
+                };
+            });
+            
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: quarters,
+                    datasets: [
+                        { label: 'English', data: chartData.map(d => d.englishLevel), borderColor: '#3b82f6', hidden: !state.visibleSubjects.english, pointRadius: 6, tension: 0.4 },
+                        { label: 'Filipino', data: chartData.map(d => d.filipinoLevel), borderColor: '#10b981', hidden: !state.visibleSubjects.filipino, pointRadius: 6, tension: 0.4 },
+                        { label: 'Numeracy', data: chartData.map(d => d.numeracyLevel), borderColor: '#ef4444', hidden: !state.visibleSubjects.numeracy, pointRadius: 6, tension: 0.4 }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            min: -0.5,
+                            max: englishLiteracyLevels.length - 0.5,
+                            ticks: {
+                                callback: (value) => {
+                                    if (value >= 0 && value < englishLiteracyLevels.length) return englishLiteracyLevels[value].level;
+                                    return null;
+                                }
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => {
+                                    const label = context.dataset.label || '';
+                                    const value = context.parsed.y;
+                                    let levelName = '';
+                                    if (label === 'English') levelName = englishLiteracyLevels[value]?.level || 'N/A';
+                                    else if (label === 'Filipino') levelName = filipinoLiteracyLevels[value]?.level || 'N/A';
+                                    else if (label === 'Numeracy') levelName = numeracyLevels[value]?.level || 'N/A';
+                                    return `${label}: ${levelName}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // --- Event Handlers ---
+        const handleNavigationClick = (event) => {
+            state.currentPage = event.target.dataset.page;
+            renderPage();
+        };
+
+        const handleFormSubmit = async (event) => {
+            event.preventDefault();
+            const form = event.target;
+            const formData = Object.fromEntries(new FormData(form).entries());
+            
+            if (!state.db || !state.isAuthReady) return;
+
+            try {
+                if (state.isEditing && state.editingId) {
+                    await updateDoc(doc(state.db, 'artifacts', state.appId, 'users', state.userId, 'student_records', state.editingId), formData);
+                } else {
+                    await addDoc(collection(state.db, 'artifacts', state.appId, 'users', state.userId, 'student_records'), formData);
+                }
+                resetForm();
+            } catch (e) {
+                console.error("Error adding/updating document: ", e);
+            }
+        };
+
+        const handleTableActions = (event) => {
+            const target = event.target;
+            if (target.classList.contains('update-btn')) {
+                const student = state.students.find(s => s.id === target.dataset.id);
+                if (!student) return;
+                const quarterIndex = quarters.indexOf(student.quarter);
+                const nextQuarter = quarters[quarterIndex + 1];
+                if (!nextQuarter) {
+                    console.log('Cannot update, student is already in Q4.');
+                    return;
+                }
+                state.formData = { ...student, quarter: nextQuarter };
+                state.isEditing = false;
+                state.editingId = null;
+                state.currentPage = 'form';
+                renderPage();
+            } else if (target.classList.contains('delete-btn')) {
+                deleteDoc(doc(state.db, 'artifacts', state.appId, 'users', state.userId, 'student_records', target.dataset.id));
+            }
+        };
+
+        const handleTrackerListClick = (event) => {
+            const studentItem = event.target.closest('.student-list-item');
+            if (studentItem) {
+                const [firstName, lastName] = studentItem.dataset.studentName.split('-');
+                state.selectedStudent = state.uniqueStudents.find(s => s.firstName === firstName && s.lastName === lastName);
+                renderTracker();
+            }
+        };
+
+        window.toggleSubjectVisibility = (subject) => {
+            state.visibleSubjects[subject] = !state.visibleSubjects[subject];
+            const legendButtons = document.getElementById('chart-legend-buttons').children;
+            for(let btn of legendButtons){
+                if(btn.textContent.toLowerCase().includes(subject)) {
+                    if (state.visibleSubjects[subject]) {
+                        btn.classList.remove('bg-gray-300', 'text-gray-800');
+                        btn.classList.add('bg-blue-500', 'text-white');
+                    } else {
+                        btn.classList.add('bg-gray-300', 'text-gray-800');
+                        btn.classList.remove('bg-blue-500', 'text-white');
+                    }
+                }
+            }
+            if (myChart) {
+                const dataset = myChart.data.datasets.find(ds => ds.label.toLowerCase() === subject);
+                if (dataset) {
+                    dataset.hidden = !state.visibleSubjects[subject];
+                    myChart.update();
+                }
+            }
+        };
+
+        // --- Initialization and Event Listeners ---
+        const init = async () => {
+            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            const initializedApp = initializeApp(firebaseConfig);
+            state.db = getFirestore(initializedApp);
+            state.auth = getAuth(initializedApp);
+            state.appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (initialAuthToken) {
+                await signInWithCustomToken(state.auth, initialAuthToken).catch(async (error) => {
+                    await signInAnonymously(state.auth);
+                });
+            } else {
+                await signInAnonymously(state.auth);
+            }
+
+            onAuthStateChanged(state.auth, (user) => {
+                state.userId = user ? user.uid : crypto.randomUUID();
+                state.isAuthReady = true;
+                document.getElementById('user-id').textContent = state.userId;
+                document.getElementById('loading-screen').classList.add('hidden');
+                document.getElementById('app').classList.remove('hidden');
+
+                const colRef = collection(state.db, 'artifacts', state.appId, 'users', state.userId, 'student_records');
+                onSnapshot(colRef, (snapshot) => {
+                    state.students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    state.uniqueStudents = [...new Map(state.students.map(item => [item.firstName + item.lastName, item])).values()];
+                    renderPage();
+                });
+            });
+
+            // Initial form population
+            resetForm();
+            
+            // Global event listeners
+            document.querySelectorAll('.button-primary').forEach(btn => btn.addEventListener('click', handleNavigationClick));
+            document.getElementById('student-form').addEventListener('submit', handleFormSubmit);
+            document.getElementById('cancel-button').addEventListener('click', resetForm);
+            document.getElementById('table-page').addEventListener('click', handleTableActions);
+            document.getElementById('table-filter-name').addEventListener('input', (e) => { state.filterName = e.target.value; renderTable(); });
+            document.getElementById('table-filter-section').addEventListener('change', (e) => { state.filterSection = e.target.value; renderTable(); });
+            document.getElementById('quarter-filter-buttons').addEventListener('click', (e) => { if (e.target.dataset.quarter) { state.currentQuarter = e.target.dataset.quarter; renderTable(); }});
+            document.getElementById('tracker-filter-name').addEventListener('input', (e) => { state.trackerFilterName = e.target.value; renderTracker(); });
+            document.getElementById('tracker-filter-section').addEventListener('change', (e) => { state.trackerFilterSection = e.target.value; renderTracker(); });
+            document.getElementById('tracker-list-container').addEventListener('click', handleTrackerListClick);
+        };
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
+
+
